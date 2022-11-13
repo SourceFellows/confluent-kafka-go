@@ -92,6 +92,26 @@ func (mc *MockCluster) SetRoundtripDuration(brokerId int, duration time.Duration
 	return nil
 }
 
+// SetBrokerDown disconnects the broker and disallows any new connections.
+// This does NOT trigger leader change.
+func (mc *MockCluster) SetBrokerDown(brokerId int) error {
+	cError := C.rd_kafka_mock_broker_set_down(mc.mcluster, C.int(brokerId))
+	if cError != C.RD_KAFKA_RESP_ERR_NO_ERROR {
+		return newError(cError)
+	}
+	return nil
+}
+
+// SetBrokerUp makes the broker accept connections again.
+// This does NOT trigger leader change.
+func (mc *MockCluster) SetBrokerUp(brokerId int) error {
+	cError := C.rd_kafka_mock_broker_set_up(mc.mcluster, C.int(brokerId))
+	if cError != C.RD_KAFKA_RESP_ERR_NO_ERROR {
+		return newError(cError)
+	}
+	return nil
+}
+
 // Close and destroy the MockCluster
 func (mc *MockCluster) Close() {
 	C.rd_kafka_mock_cluster_destroy(mc.mcluster)
